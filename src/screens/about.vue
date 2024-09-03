@@ -276,7 +276,7 @@ export default {
     const fetchDocuments = async (page = 1, pageSize) => {
       try {
         loading.value = true
-        const response = await axios.get(`http://127.0.0.1:5000/documents?page=${page}`)
+        const response = await axios.get(`https://975c-2a02-6b6f-e986-1c00-102d-c6ff-5deb-b45e.ngrok-free.app/documents?page=${page}`)
         const articlesWithUniqueTopics = response.data?.documents.map((article) => ({
           ...article,
           uniqueTopics: extractUniqueTopics(article.topics)
