@@ -7,7 +7,8 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 
 // Router
-import router from './router';
+// @ts-ignore
+import router from '@/router/index.js';
 
 // Components
 import App from './App.vue';
