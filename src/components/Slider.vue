@@ -63,8 +63,24 @@ export default {
       this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length
     },
     nextSlide() {
+
       this.currentSlide = (this.currentSlide + 1) % this.slides.length
+    },
+    startAutoSlide(){
+      setInterval(() => {
+        this.currentSlide = (this.currentSlide + 1) % this.slides.length
+      }, 3000)
+
+    },
+    stopAutoSlide() {
+      clearInterval(this.currentSlide);
     }
+  },
+  mounted() {
+    this.startAutoSlide()
+  },
+  beforeDestroy() {
+    this.stopAutoSlide()
   }
 }
 </script>

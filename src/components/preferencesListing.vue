@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-      <h2 class="title">Preferences</h2>
+      <h2 class="title">Preferences    {{selectedPreferences?.length ?? 0}} / 5</h2>
       <ul class="list-container">
         <li class="list-item" :class="{ selected: isSelected(preference) }"
              @click="toggleSelection(preference)"
@@ -22,6 +22,7 @@ data(){
 return {
   preferences : [],
   selectedPreferences: [],
+
 }
 },
   created() {
@@ -41,7 +42,7 @@ return {
         this.selectedPreferences = this.selectedPreferences.filter(
           (selected) => selected !== preference
         );
-      } else {
+      } else if(this.selectedPreferences?.length < 5){
         this.selectedPreferences.push(preference);
       }
     },
