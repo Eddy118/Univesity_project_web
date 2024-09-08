@@ -13,7 +13,7 @@
 
     <div class="article-details-container">
       <p>
-        <span style="font-weight: bold; font-size: x-large">
+        <span style="font-weight: bold; font-size: x-large; color: #c89666" >
           {{ article.text.split(' ').slice(0, 2).join(' ') }}
         </span>
         {{ article.text.split(' ').slice(2).join(' ').slice(0, 500) }}...
@@ -32,8 +32,8 @@
 <script>
 import axios from 'axios'
 import JsPDF from 'jspdf'
-import DocImage from '@/assets/text_download.png'
-import PdfImage from '@/assets/pdf_download.png'
+import DocImage from '@/assets/text.png'
+import PdfImage from '@/assets/pdfDownload.jpg'
 
 export default {
   name: 'ArticleDetails',
@@ -133,10 +133,11 @@ export default {
   flex-direction: row;
   list-style: none;
   flex-wrap: wrap;
-  justify-content: center;
+  //justify-content: center;
   margin-top: 20px;
 }
 .list-item {
+  color: #c89666;
   margin-left: 10px;
   margin-top: 5px;
 }

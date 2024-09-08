@@ -8,27 +8,82 @@
           <li v-if="data?.length === 0">
             <strong>No topic selected</strong>
           </li>
-          <li v-else class="list-item" v-for="val in data" :key="val">
-            <strong>{{ val }}</strong>
-          </li>
+          <div v-else class="selected-topics">
+            <li  class="list-item" v-for="val in data" :key="val">
+              <strong>{{ val }},</strong>
+            </li>
+          </div>
+
         </ul>
       </div>
     </div>
 
     <div v-if="loading">
       <div class="article-listing-container">
-        <h2>Recommended Articles Listing</h2>
+        <h2>Matching Articles Listing</h2>
         <SkeletonLoader />
       </div>
     </div>
 
     <div v-else>
-      <div class="article-listing-container">
+      <div v-if="articles?.length">
+        <div class="article-listing-container">
+          <h2>Matching Articles Listing</h2>
+          <div>
+            <div class="search-results-container">
+              <div
+                  v-for="(article, index) in articles"
+                  :key="index"
+                  class="search-result-item"
+                  @click="viewDetails(index, article)"
+              >
+                <div class="result-content">
+                  <!-- Clickable title -->
+                  <a href="javascript:void(0)" class="result-title">
+                    {{ article.text?.split(' ').slice(0, 2).join(' ') }}
+                  </a>
+
+                  <!-- Short snippet of the text -->
+                  <p class="result-snippet">
+                    {{ article.text?.split(' ').slice(2).join(' ').slice(0, 500) }}...
+                  </p>
+
+                  <!-- Topic metadata -->
+                  <div class="topic-container">
+                  <span class="result-topics">
+                    Topics:
+                    <span v-for="(topic, index) in article.uniqueTopics" :key="index" class="result-topic">
+                      {{ topic }}<span v-if="index !== article.uniqueTopics.length - 1">,</span>
+                    </span>
+                  </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="totalPages">
+            <Pagination
+                :currentPage="currentPage"
+                :totalPages="totalPages"
+                @page-changed="handlePageChange"
+            />
+          </div>
+
+        </div>
+      </div>
+      <div v-else class="no-results-found">
+        <h3>
+          No documents found for selected categories
+        </h3>
+      </div>
+
+
+      <div v-if="recommendedArticles?.length" class="article-listing-container">
         <h2>Recommended Articles Listing</h2>
         <div>
           <div class="search-results-container">
             <div
-                v-for="(article, index) in articles"
+                v-for="(article, index) in recommendedArticles"
                 :key="index"
                 class="search-result-item"
                 @click="viewDetails(index, article)"
@@ -36,17 +91,16 @@
               <div class="result-content">
                 <!-- Clickable title -->
                 <a href="javascript:void(0)" class="result-title">
-                  {{ article.text.split(' ').slice(0, 2).join(' ') }}
+                  {{ article.text?.split(' ').slice(0, 2).join(' ') }}
                 </a>
 
                 <!-- Short snippet of the text -->
                 <p class="result-snippet">
-                  {{ article.text.split(' ').slice(2).join(' ').slice(0, 500) }}...
+                  {{ article.text?.split(' ').slice(2).join(' ').slice(0, 500) }}...
                 </p>
 
-                <!-- Topic metadata -->
+                 Topic metadata
                 <div class="topic-container">
-                  <span class="result-url">{{ article.url || "https://example.com" }}</span>
                   <span class="result-topics">
                     Topics:
                     <span v-for="(topic, index) in article.uniqueTopics" :key="index" class="result-topic">
@@ -58,12 +112,18 @@
             </div>
           </div>
         </div>
-        <Pagination
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            @page-changed="handlePageChange"
-        />
+<!--        <Pagination-->
+<!--            :currentPage="currentPage"-->
+<!--            :totalPages="totalPages"-->
+<!--            @page-changed="handlePageChange"-->
+<!--        />-->
+<!--        <div>-->
+<!--          <div class="search-results-container">-->
+
+<!--          </div>-->
+<!--        </div>-->
       </div>
+
     </div>
   </div>
 </template>
@@ -85,8 +145,9 @@ export default {
       required: true
     }
   },
-  setup() {
+  setup(props) {
     const articles = ref([])
+    const recommendedArticles = ref([])
     const loading = ref(true)
     const currentPage = ref(1)
     const totalPages = ref(10)
@@ -95,17 +156,32 @@ export default {
     const fetchDocuments = async (page = 1) => {
       try {
         loading.value = true
-        const response = await axios.get(`https://4b13-2a02-6b6f-e986-1c00-102d-c6ff-5deb-b45e.ngrok-free.app/documents?page=${page}`, {
-          headers: {
-            'ngrok-skip-browser-warning': 'true',
-          },
-        })
-        const articlesWithUniqueTopics = response.data?.documents.map((article) => ({
+
+        const response = await axios.post(
+            'https://4b13-2a02-6b6f-e986-1c00-102d-c6ff-5deb-b45e.ngrok-free.app/documents/match',
+            {
+              categories: props?.data,
+            },  // This is the request body
+            {
+              headers: {
+                'ngrok-skip-browser-warning': 'true',  // Custom header
+                'Content-Type': 'application/json'     // You can specify additional headers if needed
+              }
+            }
+        );
+
+        const articlesWithUniqueTopics = response?.data?.matched_documents.map((article) => ({
           ...article,
           uniqueTopics: extractUniqueTopics(article.topics)
         }))
 
+        const recommendedArticlesWithUniqueTopics = response?.data?.recommended_documents.map((article) => ({
+          ...article?.document,
+          uniqueTopics: extractUniqueTopics(article?.document?.topics)
+        }))
+
         articles.value = articlesWithUniqueTopics
+        recommendedArticles.value = recommendedArticlesWithUniqueTopics
         currentPage.value = response?.data?.page
         totalPages.value = Math.ceil(response?.data?.total_documents / response?.data?.page_size)
       } catch (error) {
@@ -119,6 +195,8 @@ export default {
       const allTopics = topicsArray.map((obj) =>
           obj.topic.match(/"([^"]+)"/g).map((str) => str.replace(/"/g, ''))
       )
+
+
       const uniqueTopicsSet = new Set(allTopics.flat())
       return Array.from(uniqueTopicsSet)
     }
@@ -139,7 +217,7 @@ export default {
       fetchDocuments()
     })
 
-    return { articles, loading, viewDetails, currentPage, totalPages, handlePageChange }
+    return { articles, loading, viewDetails, currentPage, totalPages, handlePageChange, recommendedArticles }
   }
 }
 </script>
@@ -148,6 +226,16 @@ export default {
 .title {
   font-size: large;
   font-weight: bold;
+}
+
+.list-container{
+  align-items: center;
+  display: flex;
+}
+
+.list-item {
+  list-style: none;
+  margin-left: 10px;
 }
 .article-listing-container {
   margin-top: 20px;
@@ -202,5 +290,15 @@ export default {
 .result-topic {
   font-size: 13px;
   color: #202124;
+}
+
+.no-results-found {
+  margin-left: 10px;
+  margin-top: 20px;
+}
+
+.selected-topics {
+  display: flex;
+  flex-direction: row;
 }
 </style>

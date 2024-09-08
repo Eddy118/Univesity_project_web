@@ -20,7 +20,7 @@
   margin-top: 10px;
 }
 .skeleton-item {
-  flex: 1 1 calc(50% - 20px); /* Two columns, considering gap */
+  flex: 1 1 calc(100% - 20px); /* Two columns, considering gap */
   border: 1px solid #ddd;
   padding: 16px;
   border-radius: 8px;

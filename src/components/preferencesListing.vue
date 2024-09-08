@@ -8,7 +8,7 @@
           <strong>{{preference}}</strong>
         </li>
       </ul>
-    <GradientButton :preferences=this.selectedPreferences />
+    <GradientButton  :preferences="selectedPreferences" />
   </div>
 </template>
 
@@ -77,7 +77,7 @@ return {
 }
 
 li.selected {
-  background-color: lightblue;
+  background-color: #c89666;
   color: white;
   border-color: white;
 }

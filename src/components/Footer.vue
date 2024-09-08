@@ -51,7 +51,7 @@ export default {
 
 <style scoped>
 .footer-container {
-  background-color: #1c2331;
+  background-color: #c89666;
   color: white;
   padding: 2rem 1rem;
   margin-top: 50px;
@@ -59,7 +59,7 @@ export default {
 }
 
 .social-media {
-  background-color: black;
+  background-color: #12343b;
   padding: 1rem;
   display: flex;
   justify-content: space-between;

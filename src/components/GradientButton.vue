@@ -53,6 +53,7 @@ export default {
 }
 
 .gradient-button:hover {
-  background: linear-gradient(to right, #66a6ff, #89f7fe);
+  //background: linear-gradient(to right, #66a6ff, #89f7fe);
+  background: #c89666;
 }
 </style>
